@@ -1,72 +1,108 @@
 #!/bin/bash
-# Instalador Automático HYDRA ADM
-# Ejecutar con: wget -qO- https://raw.githubusercontent.com/turepo/hydra_adm/main/install | bash
+# HYDRA ADM - Panel de Administración Avanzado
+# Versión: 3.1.2
+# Autor: @mmleal43
+# Repositorio: https://github.com/mmleal43/HYDRA-ADM
 
-# Configuración
-OFFICIAL_URL="https://raw.githubusercontent.com/turepo/hydra_adm/main/hydra_adm.sh"
-INSTALL_DIR="/usr/local/bin"
-BIN_NAME="hydraadm"
-LOG_FILE="/var/log/hydra_install.log"
+# Configuración Global
+VERSION="3.1.2"
+LOG_FILE="/var/log/hydra_adm.log"
+TMP_DIR="/tmp/hydra_temp"
+REPO_URL="https://github.com/mmleal43/HYDRA-ADM"
 
-# Colores
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+# Colores Profesionales
+COLOR_RED='\033[0;31m'
+COLOR_GREEN='\033[0;32m'
+COLOR_YELLOW='\033[1;33m'
+COLOR_BLUE='\033[0;34m'
+COLOR_RESET='\033[0m'
 
-# Función para registrar logs
-log() {
-    echo -e "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
+# Función para mostrar el banner
+show_banner() {
+    clear
+    echo -e "${COLOR_BLUE}"
+    echo " ██╗  ██╗██╗   ██╗██████╗ ██████╗  █████╗ "
+    echo " ██║  ██║╚██╗ ██╔╝██╔══██╗██╔══██╗██╔══██╗"
+    echo " ███████║ ╚████╔╝ ██║  ██║██████╔╝███████║"
+    echo " ██╔══██║  ╚██╔╝  ██║  ██║██╔══██╗██╔══██║"
+    echo " ██║  ██║   ██║   ██████╔╝██║  ██║██║  ██║"
+    echo " ╚═╝  ╚═╝   ╚═╝   ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝"
+    echo -e "${COLOR_RESET}"
+    echo -e "${COLOR_YELLOW}   HYDRA ADMIN PANEL ${COLOR_GREEN}v$VERSION${COLOR_RESET}"
+    echo -e "${COLOR_BLUE}   -----------------------------------${COLOR_RESET}"
 }
 
-# Verificar root
-if [[ $EUID -ne 0 ]]; then
-    echo -e "${RED}ERROR: Este script debe ejecutarse como root${NC}"
+# Función principal
+main_menu() {
+    while true; do
+        show_banner
+        echo -e "${COLOR_GREEN}"
+        echo " 1) Instalar Servicios Esenciales"
+        echo " 2) Herramientas de Red"
+        echo " 3) Gestión de Usuarios"
+        echo " 4) Monitor de Sistema"
+        echo " 5) Configuración de Firewall"
+        echo " 6) Utilidades ADM"
+        echo " 7) Actualizar HYDRA ADM"
+        echo " 0) Salir"
+        echo -e "${COLOR_RESET}"
+
+        read -p " Seleccione una opción [0-7]: " option
+
+        case $option in
+            1) install_services ;;
+            2) network_tools ;;
+            3) user_management ;;
+            4) system_monitor ;;
+            5) firewall_config ;;
+            6) adm_utilities ;;
+            7) update_script ;;
+            0) exit 0 ;;
+            *) echo -e "${COLOR_RED}\n [!] Opción no válida!${COLOR_RESET}"; sleep 1 ;;
+        esac
+    done
+}
+
+# Función de instalación de servicios
+install_services() {
+    echo -e "\n${COLOR_YELLOW}[+] Servicios Disponibles:${COLOR_RESET}"
+    echo " 1) LAMP Stack (Apache, MySQL, PHP)"
+    echo " 2) LEMP Stack (Nginx, MySQL, PHP)"
+    echo " 3) WordPress"
+    echo " 4) OpenVPN"
+    echo " 5) Regresar"
+
+    read -p " Seleccione: " service_opt
+
+    case $service_opt in
+        1) install_lamp ;;
+        2) install_lemp ;;
+        3) install_wordpress ;;
+        4) install_openvpn ;;
+        5) return ;;
+        *) echo -e "${COLOR_RED}\n [!] Opción no válida!${COLOR_RESET}"; sleep 1 ;;
+    esac
+}
+
+# Función para instalar LAMP
+install_lamp() {
+    echo -e "\n${COLOR_YELLOW}[+] Instalando LAMP Stack...${COLOR_RESET}"
+    sudo apt update && sudo apt install -y apache2 mysql-server php libapache2-mod-php php-mysql
+    echo -e "${COLOR_GREEN}\n [+] LAMP instalado correctamente!${COLOR_RESET}"
+}
+
+# Función de actualización
+update_script() {
+    echo -e "\n${COLOR_YELLOW}[+] Actualizando HYDRA ADM...${COLOR_RESET}"
+    sudo wget -qO $0 "$REPO_URL/main/HYDRAADM.sh" && chmod +x $0
+    echo -e "${COLOR_GREEN}\n [+] Actualización completada!${COLOR_RESET}"
+}
+
+# Verificación de root
+if [ "$(id -u)" -ne 0 ]; then
+    echo -e "${COLOR_RED}\n [!] Este script debe ejecutarse como root. Use sudo.${COLOR_RESET}"
     exit 1
 fi
 
-# Banner
-echo -e "${YELLOW}"
-echo " ██╗  ██╗██╗   ██╗██████╗ ██████╗  █████╗ "
-echo " ██║  ██║╚██╗ ██╔╝██╔══██╗██╔══██╗██╔══██╗"
-echo " ███████║ ╚████╔╝ ██║  ██║██████╔╝███████║"
-echo " ██╔══██║  ╚██╔╝  ██║  ██║██╔══██╗██╔══██║"
-echo " ██║  ██║   ██║   ██████╔╝██║  ██║██║  ██║"
-echo " ╚═╝  ╚═╝   ╚═╝   ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝"
-echo -e "${NC}"
-echo -e "${GREEN}>>> INSTALADOR AUTOMÁTICO HYDRA ADM <<<${NC}"
-echo ""
-
-# Paso 1: Descargar el script
-echo -e "${YELLOW}[+] Descargando HYDRA ADM...${NC}"
-log "Iniciando descarga desde $OFFICIAL_URL"
-wget -q "$OFFICIAL_URL" -O "$INSTALL_DIR/$BIN_NAME" || {
-    echo -e "${RED}Error: Fallo al descargar el script${NC}"
-    log "Error en la descarga"
-    exit 1
-}
-
-# Paso 2: Dar permisos
-chmod +x "$INSTALL_DIR/$BIN_NAME"
-log "Script instalado en $INSTALL_DIR/$BIN_NAME"
-
-# Paso 3: Crear alias global
-echo -e "${YELLOW}[+] Configurando acceso global...${NC}"
-echo "alias hydraadm='$INSTALL_DIR/$BIN_NAME'" >> /etc/bash.bashrc
-source /etc/bash.bashrc
-
-# Paso 4: Instalar dependencias
-echo -e "${YELLOW}[+] Instalando dependencias...${NC}"
-log "Instalando paquetes requeridos"
-apt-get update >/dev/null 2>&1
-apt-get install -y --no-install-recommends \
-    wget curl git unzip \
-    net-tools ufw >/dev/null 2>&1
-
-# Paso 5: Completar instalación
-echo -e "${GREEN}[+] Instalación completada con éxito!${NC}"
-echo -e "${YELLOW}Usa el comando: ${GREEN}hydraadm${NC} ${YELLOW}para iniciar el panel.${NC}"
-log "Instalación completada"
-
-# Limpieza
-rm -f /tmp/hydra_install.sh
+# Iniciar menú principal
+main_menu
